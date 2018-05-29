@@ -3,13 +3,15 @@ new Vue({
     data:{
         you: 100,
         monster:100,
-        start:false
+        start:false,
+        turns: []
     },
     methods:{
         startGame : function(){
             this.start = true;
             this.you = 100;
             this.monster = 100;
+            this.turns = [];
         },
 
         attack : function(){
@@ -19,8 +21,13 @@ new Vue({
     
             // var damage = this.calculateDamage(3,10);
             // this.monster -= damage;
-
-            this.monster -= this.calculateDamage(3,10);
+            
+            var damage = this.calculateDamage(3,10);
+            this.monster -= damage;
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'You hits Monster for' + damage
+            });
             if(this.checkWin()){
                 return;
             }
@@ -52,7 +59,13 @@ new Vue({
         },
 
         specialAttack : function(){
-            this.monster -= this.calculateDamage(10,20);
+            var damage = this.calculateDamage(10,20);
+            this.monster -= damage;
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'You hits Monster for' + damage
+            });
+
             if(this.checkWin()){
                 return;
             }
@@ -68,18 +81,28 @@ new Vue({
             else{
                 this.you = 100;
             }
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'You heals for 10' 
+            });
+            this.monsterAttack();
         },
 
         giveUp : function(){
-
+            this.start = false;
         },
         monsterAttack: function(){
-            this.you -= this.calculateDamage(5,10);
+            var damage = this.calculateDamage(5,12)
+            this.you -= damage;
             this.checkWin();
+            this.turns.unshift({
+                isPlayer: false,
+                text: 'Monster hit You for' + damage
+            });
         },
 
         calculateDamage : function(min,max){
-            return Math.max(Math.floor(Math.random() * max) + 1, min)
+            return Math.max(Math.floor(Math.random() * max) + 1, min);
         },
 
         checkWin: function () {
@@ -94,7 +117,7 @@ new Vue({
                 }
             else if (this.you <= 0){
                 if(confirm('You lost! New Game?')){
-                    this.start();
+                    this.startGame();
                 }
                 else{
                 this.start = false;
